@@ -40,7 +40,6 @@ env:
   ###############手动修改##############
   OPENWRT_NAME: JiaY-shi
   REPO_URL: https://github.com/JiaY-shi/openwrt
-  REPO_BRANCH: 2519212ea6d60afe7fdb825a09b7f9324f41cfb7
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: JDCloud-AX1800-Pro/.config
   DIY_P1_SH: JDCloud-AX1800-Pro/diy-part1.sh
@@ -103,7 +102,7 @@ jobs:
       working-directory: /workdir
       run: |
         df -hT $PWD
-        git clone $REPO_URL -b $REPO_BRANCH openwrt
+        git clone $REPO_URL openwrt
         if [[ -n "${{ github.event.inputs.REPO_COMMIT }}" ]];then
           cd openwrt && git checkout "${{ github.event.inputs.REPO_COMMIT }}"
         fi
