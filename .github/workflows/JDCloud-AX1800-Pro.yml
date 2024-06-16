@@ -170,12 +170,13 @@ jobs:
         fi
         echo "FILE_DATE=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
+
     - name: 检查编译是否成功,失败开启SSH链接等待
       uses: Warpbuilds/action-debugger@v1.3
       with:
         limit-access-to-actor: true
         timeout-minutes: 20
-      if: 
+      if: ${{ failure() }}
         
     - name: 查看磁盘使用情况
       if: (!cancelled())
