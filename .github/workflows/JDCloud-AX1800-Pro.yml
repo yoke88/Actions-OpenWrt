@@ -40,8 +40,10 @@ env:
   CONFIG_FILE: JDCloud-AX1800-Pro/.config
   DIY_P1_SH: JDCloud-AX1800-Pro/diy-part1.sh
   DIY_P2_SH: JDCloud-AX1800-Pro/diy-part2.sh
+  PACKAGES_TO_UPLOAD: JDCloud-AX1800-Pro/packages_to_upload.txt
   SSH_ACTIONS: false
   UPLOAD_FIRMWARE: true
+  UPLOAD_PACKAGES: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
 
@@ -170,29 +172,36 @@ jobs:
         fi
         echo "FILE_DATE=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
-
-    - name: 检查编译是否成功,失败开启SSH链接等待
-      uses: Warpbuilds/action-debugger@v1.3
-      with:
-        limit-access-to-actor: true
-        timeout-minutes: 20
-      if: ${{ failure() }}
         
     - name: 查看磁盘使用情况
       if: (!cancelled())
       run: df -hT
-      
+    
     - name: 整理文件并重命名
       id: organize
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: | 
         cd openwrt/bin/targets/*/*
-        rm -rf packages
         sudo -E apt-get -qq install rename
+        if [[ "${{ env.UPLOAD_PACKAGES }}" == "true" ]]; then
+          mkdir "$GITHUB_WORKSPACE/upload" 2>/dev/null
+          for package in $(cat "$GITHUB_WORKSPACE/$PACKAGES_TO_UPLOAD"); do
+            if [[ -n "$package" && -d "packages/*/$package" ]]; then
+                  zip -jru "$GITHUB_WORKSPACE/upload/packages_to_upload.zip" "packages/*/$package"  2>/dev/null
+            fi
+          done
+        fi
+        rm -rf packages
+        
         rename 's/.*${{ env.DEVICE_NAME }}/${{ env.FILE_DATE }}-${{ env.OPENWRT_NAME }}-${{ env.DEVICE_NAME }}${{ env.BUILD_DOCKERMAN }}/' *
+
+        if [[ "${{ env.UPLOAD_PACKAGES }}" == "true" ]]; then
+          mv "$GITHUB_WORKSPACE/upload/packages_to_upload.zip" ./ 2>/dev/null
+        fi
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
         
+  
     - name: 打包上传固件到Actions Artifacts
       uses: actions/upload-artifact@main
       if: steps.organize.outputs.status == 'success' && !cancelled()
