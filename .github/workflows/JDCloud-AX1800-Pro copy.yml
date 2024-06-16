@@ -19,6 +19,11 @@ on:
         required: true
         default: true
         type: boolean
+      REPO_COMMIT:
+        description: "The Commit SHA Hash to use"
+        required: false
+        default: ''
+        type: string
       NO_DOCKERMAN:
         description: 'Not build luci-app-dockerman'
         required: true
@@ -35,7 +40,7 @@ env:
   ###############手动修改##############
   OPENWRT_NAME: JiaY-shi
   REPO_URL: https://github.com/JiaY-shi/openwrt
-  REPO_BRANCH: 4fdc7bb8f13fe7a3eff2e551f0fe621a6dee706e
+  REPO_BRANCH: ipq60xx-devel_nss
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: JDCloud-AX1800-Pro/.config
   DIY_P1_SH: JDCloud-AX1800-Pro/diy-part1.sh
@@ -99,6 +104,11 @@ jobs:
       run: |
         df -hT $PWD
         git clone $REPO_URL -b $REPO_BRANCH openwrt
+        if [[ -n "${{ github.event.inputs.REPO_COMMIT }}" ]];then
+          cd openwrt && git checkout "${{ github.event.inputs.REPO_COMMIT }}"
+        fi
+        cd /workdir
+
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
         
     - name: 加载feeds.conf.default & DIY_P1_SH
