@@ -61,11 +61,12 @@ jobs:
     steps:
     - name: 全局SSH链接管理
       if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
-      uses: mxschmitt/action-tmate@v3
+      uses: mxschmitt/action-tmate@v3.18
       with:
         limit-access-to-actor: true
+        connect-timeout-seconds: 600
         detached: true
-      timeout-minutes: 20
+        
       
     - name: 检查项目分支
       uses: actions/checkout@main
@@ -111,10 +112,10 @@ jobs:
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
     - name: 出错暂停并给ssh访问
       if: ${{ failure() }}
-      uses: mxschmitt/action-tmate@v3
+      uses: mxschmitt/action-tmate@v3.18
       with:
         limit-access-to-actor: true
-      timeout-minutes: 20
+      
     - name: 加载feeds.conf.default & DIY_P1_SH
       run: |
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
