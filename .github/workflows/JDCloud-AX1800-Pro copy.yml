@@ -109,7 +109,12 @@ jobs:
         cd /workdir
 
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
-        
+    - name: 出错暂停并给ssh访问
+      if: ${{ failure() }}
+      uses: mxschmitt/action-tmate@v3
+      with:
+        limit-access-to-actor: true
+      timeout-minutes: 20
     - name: 加载feeds.conf.default & DIY_P1_SH
       run: |
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
@@ -136,14 +141,14 @@ jobs:
         $GITHUB_WORKSPACE/$DIY_P2_SH
         
     - name: 显示CPU状态和无线温度
-      if: github.event.inputs.TEMP == 'true'
+      if: github.event.inputs.TEMP == 'true' &&  success()
       run: |
         cp JDCloud-AX1800-Pro/show-soc-status-on-luci.patch openwrt/feeds/luci/show-soc-status-on-luci.patch
         cd openwrt/feeds/luci
         git apply show-soc-status-on-luci.patch
         
     - name: 取消编译dockerman
-      if: github.event.inputs.NO_DOCKERMAN == 'true'
+      if: github.event.inputs.NO_DOCKERMAN == 'true' && success()
       run: |
         cd openwrt
         sed -i '/CONFIG_PACKAGE_luci-app-dockerman=y/d' .config
@@ -189,7 +194,7 @@ jobs:
     
     - name: 整理文件并重命名
       id: organize
-      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled() && success()
       run: | 
         cd openwrt/bin/targets/*/*
         sudo -E apt-get -qq install rename
@@ -221,7 +226,7 @@ jobs:
         
     - name: 生成固件Release标签
       id: tag
-      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      if: env.UPLOAD_RELEASE == 'true' && !cancelled() && success()
       run: |
         touch release.txt
         echo "- 使用源码：${{ env.REPO_URL }}" >> release.txt
@@ -242,7 +247,7 @@ jobs:
         
     - name: 发布固件至Release
       uses: softprops/action-gh-release@master
-      if: steps.tag.outputs.status == 'success' && !cancelled()
+      if: steps.tag.outputs.status == 'success' && !cancelled() && success()
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
