@@ -110,11 +110,6 @@ jobs:
         cd /workdir
 
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
-    - name: 出错暂停并给ssh访问
-      if: ${{ failure() }}
-      uses: mxschmitt/action-tmate@v3.18
-      with:
-        limit-access-to-actor: true
       
     - name: 加载feeds.conf.default & DIY_P1_SH
       run: |
