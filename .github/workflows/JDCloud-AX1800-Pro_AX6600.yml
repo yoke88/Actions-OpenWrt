@@ -226,6 +226,7 @@ jobs:
         else
                 echo "- 未编译luci-app-dockerman" >> release.txt
         fi
+        echo "编译openclash=${{ env.BUILD_OPENCLASH }}" >> release.txt
         echo "release_tag=${{ env.FILE_DATE }}-${{ env.OPENWRT_NAME }}-${{ env.UPLOAD_TAG_NAME }}${{ env.BUILD_DOCKERMAN }}" >> $GITHUB_OUTPUT
         echo "status=success" >> $GITHUB_OUTPUT
         
