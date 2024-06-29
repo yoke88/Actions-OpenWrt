@@ -14,13 +14,8 @@ on:
   repository_dispatch:
   workflow_dispatch:
     inputs:
-      TEMP:
-        description: 'Show soc status and wifi temperature on luci'
-        required: true
-        default: true
-        type: boolean
       REPO_COMMIT:
-        description: "The Commit SHA Hash to use"
+        description: "The commit SHA hash or branchname to use"
         required: false
         default: 'master'
         type: string
@@ -30,7 +25,12 @@ on:
         default: true
         type: boolean
       NO_OPENCLASH:
-          description: 'Not build CONFIG_PACKAGE_luci-app-openclash=y'
+          description: 'Not build luci-app-openclash'
+          required: true
+          default: true
+          type: boolean
+      NO_PASSWALL2:
+          description: "Not build PASSWALL2"
           required: true
           default: true
           type: boolean
@@ -142,6 +142,13 @@ jobs:
         cd openwrt
         sed -i '/CONFIG_PACKAGE_luci-app-dockerman=y/d' .config
         sed -i '/CONFIG_DOCKER_CGROUP_OPTIONS=y/d' .config
+
+    - name: 取消编译passwall2
+      if: github.event.inputs.NO_PASSWALL2 == 'true' && success()
+      run: |
+        cd openwrt
+        sed -i '/CONFIG_PACKAGE_luci-app-passwall2/d' .config
+
     - name: 取消编译openclash
       if: github.event.inputs.NO_OPENCLASH == 'true' && success()
       run: |
