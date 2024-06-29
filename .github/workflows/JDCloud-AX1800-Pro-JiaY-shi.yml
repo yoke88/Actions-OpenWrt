@@ -17,7 +17,7 @@ on:
       REPO_COMMIT:
         description: "The commit SHA hash or branchname to use"
         required: false
-        default: 'master'
+        default: 'ipq60xx-devel_nss'
         type: string
       NO_DOCKERMAN:
         description: 'Not build luci-app-dockerman'
