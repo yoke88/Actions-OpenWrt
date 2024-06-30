@@ -213,12 +213,6 @@ jobs:
         name: ${{ env.FILE_DATE }}-${{ env.OPENWRT_NAME }}-${{ env.UPLOAD_TAG_NAME }}${{ env.BUILD_DOCKERMAN }}
         path: ${{ env.FIRMWARE }}
         
-    - name: Upload package
-      uses: actions/upload-artifact@main
-      if: success() && !cancelled() && env.UPLOAD_PACKAGES == 'true'
-      with:
-        name: OpenWrt_package
-        path: ${{ env.PACKAGES }}
 
     - name: 生成固件Release标签
       id: tag
