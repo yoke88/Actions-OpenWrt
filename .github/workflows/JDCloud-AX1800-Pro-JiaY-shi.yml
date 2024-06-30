@@ -185,7 +185,7 @@ jobs:
     
     - name: 整理文件并重命名
       id: organize
-      if: !cancelled() && success()
+      if: (!cancelled()) && success()
       run: | 
         mapfile -t devices < <(grep '^CONFIG_TARGET_.*DEVICE.*=y' openwrt/.config | sed -r 's/.*DEVICE_(.*)=y/\1/')
         cd openwrt/bin/targets/*/*
