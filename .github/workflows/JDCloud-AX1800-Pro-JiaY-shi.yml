@@ -44,7 +44,7 @@ on:
 env:
   ###############手动修改##############
   OPENWRT_NAME: JiaY-shi
-  UPLOAD_TAG_NAME: jdcloud-ax1800-pro_ax6600
+  UPLOAD_TAG_NAME: jdcloud-ax1800-pro
   REPO_URL: https://github.com/JiaY-shi/openwrt
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: JDCloud-AX1800-Pro/.config
@@ -128,7 +128,7 @@ jobs:
         cd openwrt
         git apply jdc_ax1800-pro.patch
 
-        
+
         ./scripts/feeds update -a
         ./scripts/feeds install -a
         
@@ -224,11 +224,11 @@ jobs:
       if: env.UPLOAD_RELEASE == 'true' && !cancelled() && success()
       run: |
         echo "- 使用源码：${{ env.REPO_URL }}" >> release.txt
-        echo "- 使用分支或者commit: ${{ github.event.action.REPO_COMMIT }}" >> release.txt
+        echo "- 使用分支或者commit: ${{ github.event.inputs.REPO_COMMIT }}" >> release.txt
         echo "- 登录地址：${{ env.IP_ADDR }}" >> release.txt
-        echo "- NO_DOCKERMAN=${{ github.event.action.NO_DOCKERMAN }}" >> release.txt
-        echo "- NO_OPENCLASH=${{ github.event.action.NO_OPENCLASH }}" >> release.txt
-        echo "- NO_PASSWALL2=${{ github.event.action.NO_PASSWALL2 }}" >> release.txt
+        echo "- NO_DOCKERMAN=${{ github.event.inputs.NO_DOCKERMAN }}" >> release.txt
+        echo "- NO_OPENCLASH=${{ github.event.inputs.NO_OPENCLASH }}" >> release.txt
+        echo "- NO_PASSWALL2=${{ github.event.inputs.NO_PASSWALL2 }}" >> release.txt
         echo "- 注意京东云AX1800-Pro亚瑟无线AX1800规格，5G无线不支持160MHz频宽" >> release.txt
         echo "- 注意京东云AX6600雅典娜无线AX6600规格，5.8G无线不支持160MHz频宽" >> release.txt
         echo "release_tag=${{ env.FILE_DATE }}-${{ env.OPENWRT_NAME }}-${{ env.UPLOAD_TAG_NAME }}${{ env.BUILD_DOCKERMAN }}" >> $GITHUB_OUTPUT
