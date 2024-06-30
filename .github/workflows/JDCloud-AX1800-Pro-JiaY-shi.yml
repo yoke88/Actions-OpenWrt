@@ -198,6 +198,9 @@ jobs:
         if [[ "${{ env.UPLOAD_PACKAGES }}" == "true" ]]; then
           mkdir "$GITHUB_WORKSPACE/upload" 2>/dev/null
           cp -rf $(find packages/ -type f -name "*.ipk") $GITHUB_WORKSPACE/upload/
+          # show files in packages folder
+          ls -la $GITHUB_WORKSPACE/upload/
+          echo "PACkAGES=$GITHUB_WORKSPACE/upload/" >> $GITHUB_ENV
         fi
 
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
@@ -215,22 +218,20 @@ jobs:
       if: success() && !cancelled() && env.UPLOAD_PACKAGES == 'true'
       with:
         name: OpenWrt_package
-        path: "$GITHUB_WORKSPACE/upload"
+        path: ${{ env.PACKAGES }}
 
     - name: 生成固件Release标签
       id: tag
       if: env.UPLOAD_RELEASE == 'true' && !cancelled() && success()
       run: |
         echo "- 使用源码：${{ env.REPO_URL }}" >> release.txt
+        echo "- 使用分支或者commit: ${{ github.event.action.REPO_COMMIT }}" >> release.txt
         echo "- 登录地址：${{ env.IP_ADDR }}" >> release.txt
+        echo "- NO_DOCKERMAN=${{ github.event.action.NO_DOCKERMAN }}" >> release.txt
+        echo "- NO_OPENCLASH=${{ github.event.action.NO_OPENCLASH }}" >> release.txt
+        echo "- NO_PASSWALL2=${{ github.event.action.NO_PASSWALL2 }}" >> release.txt
         echo "- 注意京东云AX1800-Pro亚瑟无线AX1800规格，5G无线不支持160MHz频宽" >> release.txt
         echo "- 注意京东云AX6600雅典娜无线AX6600规格，5.8G无线不支持160MHz频宽" >> release.txt
-        if [[ "${{ env.BUILD_DOCKERMAN }}" == '-docker' ]]; then
-                echo "- 已编译luci-app-dockerman" >> release.txt
-        else
-                echo "- 未编译luci-app-dockerman" >> release.txt
-        fi
-        echo "编译openclash=${{ env.BUILD_OPENCLASH }}" >> release.txt
         echo "release_tag=${{ env.FILE_DATE }}-${{ env.OPENWRT_NAME }}-${{ env.UPLOAD_TAG_NAME }}${{ env.BUILD_DOCKERMAN }}" >> $GITHUB_OUTPUT
         echo "status=success" >> $GITHUB_OUTPUT
         
