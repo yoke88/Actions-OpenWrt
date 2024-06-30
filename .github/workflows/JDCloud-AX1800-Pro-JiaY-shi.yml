@@ -205,7 +205,7 @@ jobs:
           cp -rf $(find packages/ -type f -name "*.ipk") $GITHUB_WORKSPACE/upload/
           # show files in packages folder
           ls -la $GITHUB_WORKSPACE/upload/
-          echo "PACkAGES=$GITHUB_WORKSPACE/upload/" >> $GITHUB_ENV
+          echo "PACKAGES=$GITHUB_WORKSPACE/upload/" >> $GITHUB_ENV
         fi
 
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
@@ -217,7 +217,13 @@ jobs:
       with:
         name: ${{ env.FILE_DATE }}-${{ env.OPENWRT_NAME }}-${{ env.UPLOAD_TAG_NAME }}${{ env.BUILD_DOCKERMAN }}
         path: ${{ env.FIRMWARE }}
-        
+
+    - name: upload packages
+      uses: actions/upload-artifact@main
+      if: env.UPLOAD_PACKAGES=='true' && steps.organize.outputs.status == 'success' && !cancelled()
+      with:
+        name: opwnwrt-packages
+        path: ${{ env.PACKAGES }}        
 
     - name: 生成固件Release标签
       id: tag
